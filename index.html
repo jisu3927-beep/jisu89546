@@ -1,0 +1,2498 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>상상 글쓰기 주제 생성기 (Story Starter Generator)</title>
+  
+  <!-- 웹 폰트 (초등학생 친화적인 귀엽고 또렷한 폰트) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Jua&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       1. 디자인 토큰 및 기본 스타일 (밝고 따뜻한 파스텔 테마)
+       ========================================================================== */
+    :root {
+      --bg-cream: #FFFDF7;
+      --bg-pattern-dot: #FFE8D6;
+      --card-who-bg: #FFE5EC;
+      --card-who-border: #FFB3C6;
+      --card-who-accent: #FF4D6D;
+      --card-who-badge: #FF758F;
+      
+      --card-where-bg: #E8F8F5;
+      --card-where-border: #A3E4D7;
+      --card-where-accent: #1ABC9C;
+      --card-where-badge: #48C9B0;
+      
+      --card-what-bg: #F3E8FF;
+      --card-what-border: #D8B4FE;
+      --card-what-accent: #9333EA;
+      --card-what-badge: #A855F7;
+      
+      --btn-primary: #FFB703;
+      --btn-primary-hover: #FB8500;
+      --btn-primary-shadow: #D47100;
+      
+      --btn-secondary: #48CAE4;
+      --btn-secondary-hover: #0096C7;
+      
+      --text-dark: #2C3E50;
+      --text-muted: #64748B;
+      --shadow-soft: 0 10px 25px -5px rgba(0, 0, 0, 0.07), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+      --shadow-hover: 0 20px 30px -10px rgba(0, 0, 0, 0.12), 0 12px 15px -8px rgba(0, 0, 0, 0.08);
+      --border-radius-main: 28px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background-color: var(--bg-cream);
+      background-image: radial-gradient(#F5E6D3 1.5px, transparent 1.5px);
+      background-size: 24px 24px;
+      color: var(--text-dark);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* 상단 장식 구름 애니메이션 */
+    .bg-clouds {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+      opacity: 0.55;
+    }
+    .cloud {
+      position: absolute;
+      background: white;
+      border-radius: 100px;
+      filter: drop-shadow(0 8px 16px rgba(255, 183, 3, 0.15));
+      animation: floatCloud linear infinite;
+    }
+    .cloud::before, .cloud::after {
+      content: '';
+      position: absolute;
+      background: white;
+      border-radius: 50%;
+    }
+    .cloud-1 {
+      width: 140px; height: 45px; top: 12%; left: -150px;
+      animation-duration: 38s;
+    }
+    .cloud-1::before { width: 55px; height: 55px; top: -25px; left: 20px; }
+    .cloud-1::after { width: 65px; height: 65px; top: -35px; left: 55px; }
+    
+    .cloud-2 {
+      width: 180px; height: 55px; top: 60%; left: -200px;
+      animation-duration: 48s; animation-delay: 10s;
+    }
+    .cloud-2::before { width: 70px; height: 70px; top: -35px; left: 30px; }
+    .cloud-2::after { width: 80px; height: 80px; top: -45px; left: 75px; }
+
+    @keyframes floatCloud {
+      from { transform: translateX(0); }
+      to { transform: translateX(calc(100vw + 250px)); }
+    }
+
+    /* ==========================================================================
+       2. 헤더 및 도구 모음 (네비게이션)
+       ========================================================================== */
+    header {
+      position: relative;
+      z-index: 10;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1280px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+    .brand-icon {
+      font-size: 2.2rem;
+      animation: bounce 2.5s infinite ease-in-out;
+      display: inline-block;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-8px) rotate(6deg); }
+    }
+    .brand-text h1 {
+      font-family: 'Jua', sans-serif;
+      font-size: 1.85rem;
+      color: #1E293B;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .brand-text .tag {
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 0.75rem;
+      background: #FFE8D6;
+      color: #C05621;
+      padding: 3px 8px;
+      border-radius: 20px;
+      font-weight: 700;
+      letter-spacing: normal;
+    }
+    .brand-text p {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* 헤더 컨트롤 바 (타이머, 사운드, 단어 설정, 전체화면) */
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .action-btn {
+      background: white;
+      border: 2px solid #E2E8F0;
+      border-radius: 16px;
+      padding: 8px 14px;
+      font-family: 'Jua', sans-serif;
+      font-size: 0.95rem;
+      color: var(--text-dark);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 3px 6px rgba(0,0,0,0.04);
+    }
+    .action-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+      border-color: #CBD5E1;
+    }
+    .action-btn:active {
+      transform: translateY(1px);
+    }
+    .action-btn.active {
+      background: #FFF3CD;
+      border-color: #FFE69C;
+      color: #856404;
+    }
+
+    /* 교실 타이머 미니 위젯 */
+    .class-timer-widget {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #FFF;
+      border: 2px solid #E2E8F0;
+      border-radius: 16px;
+      padding: 4px 10px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.04);
+    }
+    .timer-display {
+      font-family: 'Jua', monospace;
+      font-size: 1.15rem;
+      color: #E63946;
+      min-width: 54px;
+      text-align: center;
+    }
+    .timer-btn {
+      background: #F1F5F9;
+      border: none;
+      border-radius: 8px;
+      padding: 4px 8px;
+      font-size: 0.8rem;
+      font-family: 'Jua', sans-serif;
+      cursor: pointer;
+      color: #475569;
+    }
+    .timer-btn:hover { background: #E2E8F0; }
+
+    /* ==========================================================================
+       3. 메인 레이아웃 컨테이너
+       ========================================================================== */
+    main {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 10px 20px 50px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      flex: 1;
+    }
+
+    /* ==========================================================================
+       4. 슬롯머신 & 상상 카드 3종 세트 섹션
+       ========================================================================== */
+    .slot-section {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      border: 3px solid #FFF;
+      border-radius: var(--border-radius-main);
+      padding: 36px 28px 32px;
+      box-shadow: var(--shadow-soft), 0 0 0 1px rgba(255, 230, 200, 0.5);
+      text-align: center;
+      position: relative;
+    }
+
+    .section-headline {
+      margin-bottom: 24px;
+    }
+    .section-headline h2 {
+      font-family: 'Jua', sans-serif;
+      font-size: 2.1rem;
+      color: #1E293B;
+      letter-spacing: -0.5px;
+      text-shadow: 1px 1px 0 #FFF;
+    }
+    .section-headline p {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+      font-weight: 500;
+    }
+
+    /* 카드 그리드 컨테이너 */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 22px;
+      margin-bottom: 30px;
+    }
+
+    /* 카드 스타일 공통 */
+    .story-card {
+      position: relative;
+      border-radius: 24px;
+      padding: 24px 20px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 260px;
+      border: 3.5px solid transparent;
+      box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.07);
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      overflow: hidden;
+      background-clip: padding-box;
+    }
+    .story-card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    /* 주인공 카드 (핑크/코랄) */
+    .story-card.card-who {
+      background: linear-gradient(180deg, #FFFFFF 0%, var(--card-who-bg) 100%);
+      border-color: var(--card-who-border);
+    }
+    .story-card.card-who .card-badge {
+      background: var(--card-who-badge);
+    }
+
+    /* 장소 카드 (민트) */
+    .story-card.card-where {
+      background: linear-gradient(180deg, #FFFFFF 0%, var(--card-where-bg) 100%);
+      border-color: var(--card-where-border);
+    }
+    .story-card.card-where .card-badge {
+      background: var(--card-where-badge);
+    }
+
+    /* 사건 카드 (라벤더/보라) */
+    .story-card.card-what {
+      background: linear-gradient(180deg, #FFFFFF 0%, var(--card-what-bg) 100%);
+      border-color: var(--card-what-border);
+    }
+    .story-card.card-what .card-badge {
+      background: var(--card-what-badge);
+    }
+
+    /* 카드 상단 배지 */
+    .card-badge {
+      color: white;
+      font-family: 'Jua', sans-serif;
+      font-size: 1.15rem;
+      padding: 6px 18px;
+      border-radius: 30px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+      margin-bottom: 12px;
+      letter-spacing: 0.5px;
+    }
+
+    /* 슬롯머신 텍스트 롤링 윈도우 */
+    .slot-window {
+      width: 100%;
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      margin: auto 0;
+      padding: 8px;
+    }
+
+    .slot-content {
+      font-family: 'Jua', sans-serif;
+      font-size: 1.7rem;
+      line-height: 1.35;
+      color: #1E293B;
+      text-align: center;
+      word-break: keep-all;
+      transition: transform 0.15s ease-out, opacity 0.15s ease-out, filter 0.15s ease-out;
+      user-select: none;
+    }
+
+    /* 롤링 애니메이션 진행 중일 때 클래스 */
+    .slot-rolling .slot-content {
+      animation: slotBlurSpin 0.14s infinite linear;
+      filter: blur(1.5px);
+      opacity: 0.85;
+    }
+
+    @keyframes slotBlurSpin {
+      0% { transform: translateY(-35px) scale(0.96); opacity: 0.6; }
+      50% { transform: translateY(0) scale(1.02); opacity: 1; }
+      100% { transform: translateY(35px) scale(0.96); opacity: 0.6; }
+    }
+
+    /* 착! 멈췄을 때 팝 효과 */
+    .card-landed {
+      animation: landPop 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    @keyframes landPop {
+      0% { transform: scale(0.85); opacity: 0.7; }
+      70% { transform: scale(1.12); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* 카드 하단 개별 리롤(다시 뽑기) 버튼 */
+    .card-reroll-btn {
+      background: white;
+      border: 1.5px solid rgba(0,0,0,0.08);
+      border-radius: 12px;
+      padding: 5px 12px;
+      font-size: 0.85rem;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-weight: 700;
+      color: #475569;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+      margin-top: 10px;
+    }
+    .card-reroll-btn:hover {
+      background: #F8FAFC;
+      color: #0F172A;
+      transform: scale(1.05);
+    }
+    .card-reroll-btn:active {
+      transform: scale(0.96);
+    }
+
+    /* ==========================================================================
+       5. 메인 뽑기 대형 버튼 & 미션 문장 출력바
+       ========================================================================== */
+    .spin-action-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .btn-spin-all {
+      background: linear-gradient(135deg, #FFB703 0%, #FB8500 100%);
+      color: white;
+      font-family: 'Jua', sans-serif;
+      font-size: 2rem;
+      padding: 16px 52px;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 10px 0 var(--btn-primary-shadow), 0 20px 25px -5px rgba(251, 133, 0, 0.4);
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      letter-spacing: 1px;
+      transition: all 0.15s ease;
+      position: relative;
+      top: 0;
+    }
+    .btn-spin-all:hover {
+      background: linear-gradient(135deg, #FFC125 0%, #FF951C 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 0 var(--btn-primary-shadow), 0 24px 28px -5px rgba(251, 133, 0, 0.45);
+    }
+    .btn-spin-all:active {
+      top: 8px;
+      box-shadow: 0 2px 0 var(--btn-primary-shadow), 0 8px 12px -3px rgba(251, 133, 0, 0.3);
+      transform: translateY(0);
+    }
+    .btn-spin-all:disabled {
+      background: #CBD5E1;
+      box-shadow: 0 6px 0 #94A3B8;
+      cursor: not-allowed;
+      transform: none;
+      top: 0;
+    }
+    .btn-spin-all .btn-icon {
+      font-size: 2.2rem;
+      display: inline-block;
+      transition: transform 0.4s ease;
+    }
+    .btn-spin-all:hover .btn-icon {
+      transform: rotate(45deg);
+    }
+
+    /* 오늘의 상상 문장 프리뷰 (조사 자동 결합) */
+    .mission-story-box {
+      width: 100%;
+      max-width: 900px;
+      background: #FFF9EB;
+      border: 2px dashed #F6C453;
+      border-radius: 20px;
+      padding: 16px 24px;
+      margin-top: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      font-family: 'Jua', sans-serif;
+      font-size: 1.35rem;
+      color: #78350F;
+      box-shadow: 0 4px 12px rgba(246, 196, 83, 0.15);
+      animation: fadeIn 0.4s ease;
+    }
+    .mission-story-box .bubble-icon {
+      font-size: 1.6rem;
+      flex-shrink: 0;
+    }
+    .mission-text {
+      line-height: 1.45;
+    }
+    .highlight-who { color: #E11D48; text-decoration: underline wavy #FDA4AF; }
+    .highlight-where { color: #0D9488; text-decoration: underline wavy #99F6E4; }
+    .highlight-what { color: #7C3AED; text-decoration: underline wavy #D8B4FE; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ==========================================================================
+       6. 학습 활동 지원: [이 주제로 글구상하기] 워크북 섹션
+       ========================================================================== */
+    .workbook-section {
+      background: white;
+      border-radius: var(--border-radius-main);
+      padding: 32px 32px 36px;
+      box-shadow: var(--shadow-soft);
+      border: 3px solid #FFF;
+      position: relative;
+    }
+
+    .workbook-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      border-bottom: 2px solid #F1F5F9;
+      padding-bottom: 18px;
+      margin-bottom: 24px;
+    }
+    .workbook-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .workbook-title h3 {
+      font-family: 'Jua', sans-serif;
+      font-size: 1.7rem;
+      color: #1E293B;
+    }
+    .workbook-title .step-badge {
+      background: #E0F2FE;
+      color: #0284C7;
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+
+    /* 학생 정보 입력 (이름, 학년, 반, 제목) */
+    .student-info-bar {
+      display: grid;
+      grid-template-columns: 140px 140px 1fr;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .input-group {
+      display: flex;
+      align-items: center;
+      background: #F8FAFC;
+      border: 2px solid #E2E8F0;
+      border-radius: 14px;
+      padding: 4px 12px;
+      transition: all 0.2s ease;
+    }
+    .input-group:focus-within {
+      background: white;
+      border-color: #38BDF8;
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+    }
+    .input-group label {
+      font-family: 'Jua', sans-serif;
+      font-size: 0.95rem;
+      color: #64748B;
+      margin-right: 8px;
+      white-space: nowrap;
+    }
+    .input-group input {
+      border: none;
+      background: transparent;
+      outline: none;
+      font-size: 0.95rem;
+      color: #1E293B;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-weight: 600;
+      width: 100%;
+    }
+
+    /* 글구상 모드 탭 (3단계 구성 vs 자유 글쓰기) */
+    .mode-tab-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .mode-tab {
+      background: #F1F5F9;
+      border: none;
+      border-radius: 12px;
+      padding: 8px 16px;
+      font-family: 'Jua', sans-serif;
+      font-size: 1rem;
+      color: #64748B;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .mode-tab.active {
+      background: #3B82F6;
+      color: white;
+      box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+    }
+
+    /* 3단계 구상 컨테이너 */
+    .structure-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .structure-col {
+      background: #F8FAFC;
+      border: 2px solid #E2E8F0;
+      border-radius: 18px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .structure-col.col-start { border-top: 5px solid #FF758F; }
+    .structure-col.col-middle { border-top: 5px solid #48C9B0; }
+    .structure-col.col-end { border-top: 5px solid #A855F7; }
+
+    .col-title {
+      font-family: 'Jua', sans-serif;
+      font-size: 1.15rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .col-title .hint {
+      font-size: 0.75rem;
+      font-family: 'Noto Sans KR', sans-serif;
+      color: #94A3B8;
+      font-weight: normal;
+    }
+    .structure-textarea {
+      width: 100%;
+      height: 150px;
+      border: 1.5px solid #E2E8F0;
+      border-radius: 12px;
+      padding: 12px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .structure-textarea:focus {
+      border-color: #38BDF8;
+      background: white;
+    }
+
+    /* 자유 글쓰기 컨테이너 */
+    .freeform-box {
+      display: none;
+      margin-bottom: 20px;
+    }
+    .freeform-box.active {
+      display: block;
+    }
+    .freeform-textarea {
+      width: 100%;
+      height: 220px;
+      border: 2px solid #E2E8F0;
+      border-radius: 18px;
+      padding: 18px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 1.05rem;
+      line-height: 1.7;
+      resize: vertical;
+      outline: none;
+      background: #FAFAFA;
+      transition: all 0.2s ease;
+    }
+    .freeform-textarea:focus {
+      background: white;
+      border-color: #38BDF8;
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+    }
+
+    /* 하단 유틸리티 (글자수, 저장 상태, 인쇄/다운로드 버튼) */
+    .workbook-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 14px;
+      padding-top: 14px;
+      border-top: 1px solid #F1F5F9;
+    }
+
+    .word-count-badge {
+      font-size: 0.9rem;
+      color: #64748B;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .save-indicator {
+      font-size: 0.8rem;
+      color: #10B981;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .export-buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn-export {
+      border: none;
+      border-radius: 14px;
+      padding: 10px 18px;
+      font-family: 'Jua', sans-serif;
+      font-size: 1rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+    .btn-export-print {
+      background: #10B981;
+      color: white;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+    .btn-export-print:hover { background: #059669; transform: translateY(-2px); }
+
+    .btn-export-save {
+      background: #0284C7;
+      color: white;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+    }
+    .btn-export-save:hover { background: #0369A1; transform: translateY(-2px); }
+
+    .btn-export-copy {
+      background: #F1F5F9;
+      color: #334155;
+      border: 1.5px solid #CBD5E1;
+    }
+    .btn-export-copy:hover { background: #E2E8F0; }
+
+    /* ==========================================================================
+       7. 선생님 단어 편집 모달 (Modal / Dialog)
+       ========================================================================== */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.25s ease;
+    }
+    .modal-backdrop.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-card {
+      background: white;
+      width: 100%;
+      max-width: 680px;
+      max-height: 90vh;
+      border-radius: 28px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transform: scale(0.92);
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .modal-backdrop.open .modal-card {
+      transform: scale(1);
+    }
+
+    .modal-header {
+      padding: 20px 24px;
+      border-bottom: 2px solid #F1F5F9;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #FFFDF9;
+    }
+    .modal-header h3 {
+      font-family: 'Jua', sans-serif;
+      font-size: 1.45rem;
+      color: #1E293B;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .modal-close-btn {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #94A3B8;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+    .modal-close-btn:hover {
+      background: #F1F5F9;
+      color: #1E293B;
+    }
+
+    .modal-body {
+      padding: 20px 24px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .editor-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      border-bottom: 2px solid #F1F5F9;
+      padding-bottom: 8px;
+    }
+    .editor-tab {
+      background: #F8FAFC;
+      border: 1.5px solid #E2E8F0;
+      border-radius: 12px;
+      padding: 8px 16px;
+      font-family: 'Jua', sans-serif;
+      font-size: 0.95rem;
+      color: #64748B;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .editor-tab.active-who {
+      background: #FFE5EC;
+      border-color: #FFB3C6;
+      color: #E11D48;
+    }
+    .editor-tab.active-where {
+      background: #E8F8F5;
+      border-color: #A3E4D7;
+      color: #0D9488;
+    }
+    .editor-tab.active-what {
+      background: #F3E8FF;
+      border-color: #D8B4FE;
+      color: #7C3AED;
+    }
+
+    .word-add-box {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .word-add-input {
+      flex: 1;
+      padding: 10px 14px;
+      border: 2px solid #E2E8F0;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      outline: none;
+    }
+    .word-add-input:focus {
+      border-color: #3B82F6;
+    }
+    .btn-add-word {
+      background: #3B82F6;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 0 18px;
+      font-family: 'Jua', sans-serif;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    /* 단어 태그 클라우드 */
+    .word-tag-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      max-height: 260px;
+      overflow-y: auto;
+      padding: 10px;
+      background: #F8FAFC;
+      border-radius: 16px;
+      border: 1px solid #E2E8F0;
+    }
+    .word-chip {
+      background: white;
+      border: 1px solid #CBD5E1;
+      border-radius: 30px;
+      padding: 5px 12px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .word-chip-del {
+      background: #F1F5F9;
+      border: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      font-size: 0.75rem;
+      color: #EF4444;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .word-chip-del:hover {
+      background: #FEE2E2;
+    }
+
+    /* 대량 편집 토글 영역 */
+    .bulk-editor-toggle {
+      margin-top: 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      color: #475569;
+      cursor: pointer;
+      background: none;
+      border: none;
+      text-decoration: underline;
+    }
+    .bulk-textarea {
+      width: 100%;
+      height: 120px;
+      margin-top: 10px;
+      padding: 10px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      display: none;
+    }
+    .bulk-textarea.active {
+      display: block;
+    }
+
+    .modal-footer {
+      padding: 16px 24px;
+      background: #F8FAFC;
+      border-top: 2px solid #F1F5F9;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .btn-reset-default {
+      background: none;
+      border: none;
+      color: #EF4444;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+    .btn-modal-done {
+      background: #10B981;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 24px;
+      font-family: 'Jua', sans-serif;
+      font-size: 1.05rem;
+      cursor: pointer;
+    }
+
+    /* ==========================================================================
+       8. 안내 팁 & 푸터
+       ========================================================================== */
+    .tip-banner {
+      background: #EFF6FF;
+      border: 1.5px solid #BFDBFE;
+      border-radius: 18px;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.95rem;
+      color: #1E40AF;
+    }
+    .tip-banner strong {
+      font-family: 'Jua', sans-serif;
+      font-size: 1.05rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 24px;
+      color: #94A3B8;
+      font-size: 0.85rem;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* 토스트 알림창 */
+    .toast-msg {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: rgba(30, 41, 59, 0.92);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      z-index: 9999;
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      pointer-events: none;
+    }
+    .toast-msg.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* Confetti 폭죽 캔버스 */
+    #confetti-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 9998;
+    }
+
+    /* ==========================================================================
+       9. 반응형 미디어 쿼리 (TV, 태블릿, 모바일)
+       ========================================================================== */
+    @media (max-width: 900px) {
+      .cards-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      .story-card {
+        min-height: 200px;
+        padding: 20px 16px;
+      }
+      .slot-window {
+        height: 80px;
+      }
+      .slot-content {
+        font-size: 1.5rem;
+      }
+      .structure-grid {
+        grid-template-columns: 1fr;
+      }
+      .student-info-bar {
+        grid-template-columns: 1fr 1fr;
+      }
+      .student-info-bar .input-group:last-child {
+        grid-column: span 2;
+      }
+      .btn-spin-all {
+        font-size: 1.6rem;
+        padding: 14px 36px;
+      }
+      .mission-story-box {
+        font-size: 1.15rem;
+      }
+    }
+
+    @media (max-width: 600px) {
+      header {
+        flex-direction: column;
+        gap: 14px;
+        align-items: stretch;
+      }
+      .header-actions {
+        justify-content: space-between;
+      }
+      .student-info-bar {
+        grid-template-columns: 1fr;
+      }
+      .student-info-bar .input-group:last-child {
+        grid-column: span 1;
+      }
+      .workbook-footer {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .export-buttons {
+        flex-direction: column;
+      }
+      .btn-export {
+        justify-content: center;
+      }
+    }
+
+    /* 대형 모니터 / 교실 전자칠판 (1400px 이상) */
+    @media (min-width: 1400px) {
+      .slot-content {
+        font-size: 2rem;
+      }
+      .btn-spin-all {
+        font-size: 2.3rem;
+        padding: 18px 64px;
+      }
+      .mission-story-box {
+        font-size: 1.55rem;
+        padding: 20px 32px;
+      }
+    }
+
+    /* ==========================================================================
+       10. 프린트 전용 스타일 (@media print) - 초등 국어 학습지 완벽 대응
+       ========================================================================== */
+    @media print {
+      body {
+        background: white !important;
+        background-image: none !important;
+        color: black !important;
+        padding: 0 !important;
+      }
+      header, .bg-clouds, .btn-spin-all, .card-reroll-btn,
+      .mode-tab-bar, .workbook-footer, .header-actions,
+      .tip-banner, footer, .modal-backdrop, #confetti-canvas,
+      .section-headline p {
+        display: none !important;
+      }
+
+      main {
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        gap: 16px !important;
+      }
+
+      /* 프린트 학습지 헤더 */
+      .slot-section {
+        background: none !important;
+        box-shadow: none !important;
+        border: none !important;
+        padding: 0 !important;
+        margin-bottom: 15px !important;
+      }
+      .section-headline h2 {
+        font-size: 1.8rem !important;
+        color: #000 !important;
+        border-bottom: 2px solid #000;
+        padding-bottom: 8px;
+        margin-bottom: 12px;
+      }
+
+      /* 카드 3종 세트 인쇄 포맷 */
+      .cards-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 12px !important;
+        margin-bottom: 16px !important;
+      }
+      .story-card {
+        border: 2px solid #333 !important;
+        background: #FAFAFA !important;
+        min-height: 130px !important;
+        box-shadow: none !important;
+        padding: 12px !important;
+        page-break-inside: avoid;
+      }
+      .card-badge {
+        color: black !important;
+        background: #EEE !important;
+        border: 1px solid #999 !important;
+        box-shadow: none !important;
+        font-size: 0.95rem !important;
+        padding: 3px 10px !important;
+      }
+      .slot-window {
+        height: auto !important;
+      }
+      .slot-content {
+        font-size: 1.25rem !important;
+        color: #000 !important;
+        filter: none !important;
+      }
+
+      .mission-story-box {
+        background: #F8F9FA !important;
+        border: 1.5px solid #444 !important;
+        color: #000 !important;
+        font-size: 1.15rem !important;
+        padding: 10px 14px !important;
+        margin-top: 8px !important;
+        box-shadow: none !important;
+      }
+      .mission-story-box span {
+        font-weight: bold !important;
+        text-decoration: underline !important;
+      }
+
+      /* 글 구상 워크북 인쇄 */
+      .workbook-section {
+        box-shadow: none !important;
+        border: 2px solid #000 !important;
+        border-radius: 12px !important;
+        padding: 16px !important;
+        page-break-inside: avoid;
+      }
+      .workbook-header {
+        border-bottom: 1.5px solid #000 !important;
+        margin-bottom: 14px !important;
+        padding-bottom: 10px !important;
+      }
+      .workbook-title h3 {
+        font-size: 1.3rem !important;
+      }
+      .student-info-bar {
+        grid-template-columns: 140px 140px 1fr !important;
+        margin-bottom: 14px !important;
+      }
+      .input-group {
+        border: 1px solid #333 !important;
+        background: none !important;
+      }
+
+      .structure-grid {
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 10px !important;
+      }
+      .structure-col {
+        border: 1px solid #666 !important;
+        background: none !important;
+        padding: 10px !important;
+      }
+      .structure-textarea {
+        border: 1px dashed #999 !important;
+        height: 380px !important;
+        background: none !important;
+        font-size: 1rem !important;
+      }
+
+      .freeform-box.active .freeform-textarea {
+        border: 1px dashed #999 !important;
+        height: 480px !important;
+        background: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 하늘 떠다니는 구름 장식 -->
+  <div class="bg-clouds">
+    <div class="cloud cloud-1"></div>
+    <div class="cloud cloud-2"></div>
+  </div>
+
+  <!-- 화면 상단 헤더 -->
+  <header>
+    <a href="#" class="brand" onclick="location.reload(); return false;">
+      <span class="brand-icon">✨</span>
+      <div class="brand-text">
+        <h1>상상 글쓰기 주제 생성기 <span class="tag">국어·학급경영</span></h1>
+        <p>엉뚱하고 기발한 3가지 단어로 시작하는 나만의 이야기!</p>
+      </div>
+    </a>
+
+    <!-- 선생님 및 학생 편의 컨트롤 바 -->
+    <div class="header-actions">
+      <!-- 교실 글쓰기 집중 타이머 -->
+      <div class="class-timer-widget" title="수업 집중 글쓰기 타이머">
+        <span>⏱️</span>
+        <div class="timer-display" id="timerDisplay">10:00</div>
+        <button class="timer-btn" id="btnTimerToggle">시작</button>
+        <button class="timer-btn" id="btnTimerReset">리셋</button>
+      </div>
+
+      <!-- 효과음 ON/OFF 버튼 -->
+      <button class="action-btn" id="btnSoundToggle" title="효과음 켜기/끄기">
+        <span id="soundIcon">🔊</span> <span id="soundText">소리 켬</span>
+      </button>
+
+      <!-- 단어 편집 설정 모달 열기 -->
+      <button class="action-btn" id="btnOpenSettings" title="선생님 단어 편집/추가">
+        <span>⚙️</span> 단어 편집
+      </button>
+
+      <!-- 전체화면 토글 (교실 TV / 전자칠판용) -->
+      <button class="action-btn" id="btnFullscreen" title="전자칠판 전체화면">
+        <span>⛶</span> 전체화면
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <!-- ====================================================================
+         1. 메인 슬롯머신 & 상상 카드 3종 세트
+         ==================================================================== -->
+    <section class="slot-section">
+      <div class="section-headline">
+        <h2>🎲 오늘의 상상 이야기 슬롯</h2>
+        <p>버튼을 누르면 세 가지 신기한 비밀 단어가 튀어나와요!</p>
+      </div>
+
+      <!-- 카드 3종 (주인공 / 장소 / 사건) -->
+      <div class="cards-grid">
+        <!-- 1. 주인공 카드 -->
+        <div class="story-card card-who" id="cardWho">
+          <div class="card-badge">
+            <span>🧑‍🚀</span> 주인공 (누가?)
+          </div>
+          <div class="slot-window">
+            <div class="slot-content" id="slotTextWho">민트초코를 좋아하는 외계인</div>
+          </div>
+          <button class="card-reroll-btn" data-category="who" title="주인공만 다시 뽑기">
+            🔄 주인공만 교체
+          </button>
+        </div>
+
+        <!-- 2. 장소 카드 -->
+        <div class="story-card card-where" id="cardWhere">
+          <div class="card-badge">
+            <span>🏰</span> 장소 (어디서?)
+          </div>
+          <div class="slot-window">
+            <div class="slot-content" id="slotTextWhere">교장실 뒤편 비밀 통로</div>
+          </div>
+          <button class="card-reroll-btn" data-category="where" title="장소만 다시 뽑기">
+            🔄 장소만 교체
+          </button>
+        </div>
+
+        <!-- 3. 사건 카드 -->
+        <div class="story-card card-what" id="cardWhat">
+          <div class="card-badge">
+            <span>⚡</span> 엉뚱한 사건 (무슨 일이?)
+          </div>
+          <div class="slot-window">
+            <div class="slot-content" id="slotTextWhat">모든 사람의 마음이 들리기 시작했다</div>
+          </div>
+          <button class="card-reroll-btn" data-category="what" title="사건만 다시 뽑기">
+            🔄 사건만 교체
+          </button>
+        </div>
+      </div>
+
+      <!-- 메인 뽑기 버튼 & 오늘의 상상 발문 문장 -->
+      <div class="spin-action-area">
+        <button class="btn-spin-all" id="btnSpinAll">
+          <span class="btn-icon">🎰</span>
+          <span>주제 뽑기!</span>
+        </button>
+
+        <!-- 세 단어로 완성된 상상 질문 발문 -->
+        <div class="mission-story-box" id="missionStoryBox">
+          <span class="bubble-icon">💡</span>
+          <div class="mission-text" id="missionStoryText">
+            만약 <span class="highlight-who">민트초코를 좋아하는 외계인</span>이(가) <span class="highlight-where">교장실 뒤편 비밀 통로</span>에서 <span class="highlight-what">모든 사람의 마음이 들리기 시작했다</span>면 어떤 일이 벌어질까요?
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 안내 배너 -->
+    <div class="tip-banner">
+      <span>✏️</span>
+      <div>
+        <strong>선생님 & 어린이 꿀팁!</strong> 
+        마음에 들지 않는 단어는 각 카드 아래의 <strong>[🔄 교체]</strong> 버튼을 눌러 그 단어만 쏙 바꿀 수 있어요. 주제가 마음에 들면 아래 글구상하기 칸에 나만의 멋진 이야기를 써 보세요!
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         2. 학습 활동 지원: [이 주제로 글구상하기] 워크북 영역
+         ==================================================================== -->
+    <section class="workbook-section" id="workbookSection">
+      <div class="workbook-header">
+        <div class="workbook-title">
+          <span style="font-size: 1.8rem;">📝</span>
+          <div>
+            <h3>이 주제로 글구상하기</h3>
+          </div>
+          <span class="step-badge">국어 학습 활동지</span>
+        </div>
+
+        <!-- 탭 전환 버튼 -->
+        <div class="mode-tab-bar">
+          <button class="mode-tab active" data-mode="structure">3단계 구상 (처음-가운데-끝)</button>
+          <button class="mode-tab" data-mode="free">자유 글쓰기</button>
+        </div>
+      </div>
+
+      <!-- 학생 정보 입력 란 -->
+      <div class="student-info-bar">
+        <div class="input-group">
+          <label for="studentSchool">학교/학급</label>
+          <input type="text" id="studentSchool" placeholder="예: 4학년 2반" value="">
+        </div>
+        <div class="input-group">
+          <label for="studentName">이름</label>
+          <input type="text" id="studentName" placeholder="예: 홍길동">
+        </div>
+        <div class="input-group">
+          <label for="storyTitle">내가 지은 이야기 제목</label>
+          <input type="text" id="storyTitle" placeholder="제목을 멋지게 지어보세요!">
+        </div>
+      </div>
+
+      <!-- 1) 3단계 구상 모드 (초등 국어 교육과정 최적화) -->
+      <div class="structure-grid" id="structureGrid">
+        <div class="structure-col col-start">
+          <div class="col-title">
+            <span>🌱 [처음] 시작하기</span>
+            <span class="hint">인물과 배경 소개</span>
+          </div>
+          <textarea class="structure-textarea" id="textStart" placeholder="언제, 어디서, 누구에게 무슨 일이 처음 생겼나요?
+예) 평화롭던 오후 교장실 뒤에서 이상한 소리가 들렸는데..."></textarea>
+        </div>
+
+        <div class="structure-col col-middle">
+          <div class="col-title">
+            <span>🔥 [가운데] 겪은 일</span>
+            <span class="hint">사건의 발생과 위기</span>
+          </div>
+          <textarea class="structure-textarea" id="textMiddle" placeholder="어떤 신기하고 엉뚱한 모험이나 사건이 벌어졌나요?
+예) 갑자기 사람들의 생각이 귓가에 쫑알쫑알 들리기 시작했다!"></textarea>
+        </div>
+
+        <div class="structure-col col-end">
+          <div class="col-title">
+            <span>🌈 [끝] 마무리</span>
+            <span class="hint">해결과 느낀 점</span>
+          </div>
+          <textarea class="structure-textarea" id="textEnd" placeholder="사건은 어떻게 잘 해결되었고, 어떤 생각을 하게 되었나요?
+예) 우리는 서로를 더 잘 이해하게 되었고 특별한 친구가 되었다."></textarea>
+        </div>
+      </div>
+
+      <!-- 2) 자유 글쓰기 모드 -->
+      <div class="freeform-box" id="freeformBox">
+        <textarea class="freeform-textarea" id="textFree" placeholder="자유롭게 상상의 나래를 펼쳐 글을 적어보세요!
+공책에 옮겨 적기 전 자유롭게 브레인스토밍하거나 한 편의 동화를 써도 좋습니다."></textarea>
+      </div>
+
+      <!-- 워크북 푸터 (글자수 카운트 & 인쇄 / 저장 / 복사 버튼) -->
+      <div class="workbook-footer">
+        <div class="word-count-badge">
+          <span>글자 수: <strong id="totalCharCount" style="color: #0284C7;">0</strong>자</span>
+          <span class="save-indicator" id="saveIndicator">자동 저장됨 ✓</span>
+        </div>
+
+        <div class="export-buttons">
+          <button class="btn-export btn-export-copy" id="btnCopyText" title="글 내용 클립보드 복사">
+            📋 클립보드 복사
+          </button>
+          <button class="btn-export btn-export-save" id="btnSaveTxt" title="텍스트 파일로 다운로드">
+            💾 텍스트 저장 (.txt)
+          </button>
+          <button class="btn-export btn-export-print" id="btnPrint" title="학습지 양식으로 인쇄 또는 PDF 저장">
+            🖨️ 학습지 인쇄하기
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>초등학교 국어 & 학급 경영 상상 글쓰기 수업 지원 도구 • 학생들의 무한한 상상력을 응원합니다! 🚀</p>
+  </footer>
+
+  <!-- ====================================================================
+       3. 선생님 단어 편집 모달 (Modal / Settings)
+       ==================================================================== -->
+  <div class="modal-backdrop" id="settingsModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3><span>⚙️</span> 글쓰기 단어 목록 수정/관리</h3>
+        <button class="modal-close-btn" id="btnCloseModal" title="닫기">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <p style="font-size: 0.9rem; color: #64748B; margin-bottom: 12px;">
+          선생님께서 우리 반 학생들의 눈높이에 맞게 단어를 추가하거나 삭제할 수 있습니다. (수정 내용은 브라우저에 안전하게 자동 저장됩니다.)
+        </p>
+
+        <!-- 카테고리 탭 (주인공 / 장소 / 사건) -->
+        <div class="editor-tabs">
+          <button class="editor-tab active-who" data-cat="who">🧑‍🚀 주인공 (<span id="countWho">0</span>)</button>
+          <button class="editor-tab" data-cat="where">🏰 장소 (<span id="countWhere">0</span>)</button>
+          <button class="editor-tab" data-cat="what">⚡ 엉뚱한 사건 (<span id="countWhat">0</span>)</button>
+        </div>
+
+        <!-- 단어 1개 추가 입력창 -->
+        <div class="word-add-box">
+          <input type="text" class="word-add-input" id="newWordInput" placeholder="새 단어를 입력하고 엔터를 치세요 (예: 덜렁이 로봇)">
+          <button class="btn-add-word" id="btnAddWord">추가</button>
+        </div>
+
+        <!-- 단어 칩 태그 리스트 -->
+        <div class="word-tag-container" id="wordTagContainer">
+          <!-- JS로 동적 생성 -->
+        </div>
+
+        <!-- 대량 편집 (줄바꿈으로 여러 개 일괄 붙여넣기) -->
+        <div>
+          <button type="button" class="bulk-editor-toggle" id="btnToggleBulk">
+            📝 줄바꿈으로 한꺼번에 대량 편집하기
+          </button>
+          <textarea class="bulk-textarea" id="bulkTextarea" placeholder="한 줄에 하나씩 단어를 입력하세요."></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-reset-default" id="btnResetDefault">기본 추천 단어로 초기화</button>
+        <button class="btn-modal-done" id="btnSaveModal">저장 완료</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 토스트 메시지 -->
+  <div class="toast-msg" id="toastMsg">알림 메시지</div>
+
+  <!-- 폭죽 캔버스 -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- ====================================================================
+       4. 자바스크립트 로직 (단일 파일 완결형)
+       ==================================================================== -->
+  <script>
+    /* ==========================================================================
+       A. 기본 추천 단어 데이터베이스 (초등학생 눈높이 25개 이상씩)
+       ========================================================================== */
+    const DEFAULT_DATA = {
+      who: [
+        "민트초코를 좋아하는 외계인",
+        "우리 집 강아지",
+        "미래에서 온 나",
+        "말하는 떡볶이",
+        "엉뚱한 과학자",
+        "학교 귀신",
+        "잔소리 대마왕 로봇",
+        "날개 달린 아기 고양이",
+        "비밀 요원 햄스터",
+        "마법에 걸린 담임 선생님",
+        "게임 속 전설의 전사",
+        "방귀 대장 도깨비",
+        "투명인간 짝꿍",
+        "시간을 달리는 거북이",
+        "말을 너무 잘하는 AI 스피커",
+        "모든 걸 기억하는 지우개",
+        "잠꾸러기 산타클로스",
+        "음악을 사랑하는 드래곤",
+        "바나나를 싫어하는 원숭이",
+        "변신할 줄 아는 백팩",
+        "마법 책을 읽는 도둑고양이",
+        "하늘을 날고 싶은 펭귄",
+        "우주 탐험가 곰인형",
+        "비밀을 품은 전학생",
+        "거짓말을 못 하는 마녀"
+      ],
+      where: [
+        "달콤한 과자 나라",
+        "교장실 뒤편 비밀 통로",
+        "공룡 시대",
+        "타임머신 내부",
+        "급식실 조리실 안쪽",
+        "아무도 없는 밤의 놀이공원",
+        "구름 위 둥둥 학교",
+        "깊은 바닷속 해파리 도서관",
+        "외계 행성의 24시 편의점",
+        "거인들이 사는 거대한 체육관",
+        "시간이 멈춘 시계탑 꼭대기",
+        "거꾸로 서 있는 신비한 성",
+        "사탕비가 내리는 숲속",
+        "책 속으로 들어간 세계",
+        "교실 사물함 속 숨겨진 방",
+        "지하철 맨 끝 칸의 비밀 문",
+        "별똥별이 떨어지는 해변",
+        "얼음으로 만든 썰매 왕국",
+        "비밀 연구소 지하 100층",
+        "무지개가 시작되는 언덕",
+        "마법의 문구점 뒷마당",
+        "우주 정거장의 온실 정원",
+        "도깨비들의 야시장",
+        "장난감들이 살아 움직이는 방",
+        "새들이 회의하는 거대한 고목나무"
+      ],
+      what: [
+        "숙제를 통째로 먹어버렸다",
+        "몸이 1cm로 작아져 버렸다",
+        "모든 사람의 속마음이 들리기 시작했다",
+        "하늘에서 치킨과 피자가 내린다",
+        "시간이 반대로 흐르기 시작했다",
+        "내가 그린 낙서가 살아 움직인다",
+        "방귀를 뀌면 풍선처럼 공중으로 뜬다",
+        "세상의 모든 스마트폰이 멈췄다",
+        "동물들과 대화가 가능해졌다",
+        "웃음을 멈출 수 없는 열매를 먹었다",
+        "거짓말을 하면 코에서 비눗방울이 나온다",
+        "만지는 물건마다 젤리로 변해버린다",
+        "하루 동안 학교의 모든 규칙이 사라졌다",
+        "몸무게가 깃털처럼 가벼워져 날아다닌다",
+        "과거로 가는 문을 실수로 열어버렸다",
+        "발바닥에서 신나는 음악이 연주된다",
+        "눈을 깜빡일 때마다 장소가 바뀐다",
+        "학교 바닥이 미끄러운 빙판으로 변했다",
+        "선생님과 학생의 역할이 뒤바뀌었다",
+        "말하는 단어가 눈앞에 글자로 둥둥 뜬다",
+        "잃어버렸던 모든 물건들이 찾아왔다",
+        "외계인이 지구 초등학교에 입학했다",
+        "도서관의 모든 책 속 인물이 튀어나왔다",
+        "숨을 쉴 때마다 향기로운 꽃이 피어난다",
+        "소원을 딱 하나 들어주는 마법 구슬을 주웠다"
+      ]
+    };
+
+    // 로컬 스토리지 키
+    const STORAGE_KEY_WORDS = "story_starter_words_v1";
+    const STORAGE_KEY_WORKBOOK = "story_starter_saved_workbook_v1";
+    const STORAGE_KEY_SOUND = "story_starter_sound_enabled";
+
+    // 상태 관리 객체
+    let currentWords = { who: [], where: [], what: [] };
+    let selectedResults = { who: "", where: "", what: "" };
+    let isRolling = false;
+    let soundEnabled = true;
+    let activeEditorCat = "who";
+
+    /* ==========================================================================
+       B. 사운드 이펙트 엔진 (Web Audio API - 외부 파일 의존성 없음)
+       ========================================================================== */
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) {
+            this.ctx = new AudioContext();
+          }
+        }
+        if (this.ctx && this.ctx.state === "suspended") {
+          this.ctx.resume();
+        }
+      }
+      // 슬롯 회전 틱 소리
+      playTick() {
+        if (!soundEnabled) return;
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(450 + Math.random() * 200, this.ctx.currentTime);
+          gain.gain.setValueAtTime(0.04, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.05);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.05);
+        } catch (e) {}
+      }
+      // 카드 착지(멈춤) 소리
+      playStop(index = 0) {
+        if (!soundEnabled) return;
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const freqs = [523.25, 659.25, 783.99]; // 도, 미, 솔
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = "triangle";
+          osc.frequency.setValueAtTime(freqs[index] || 523.25, this.ctx.currentTime);
+          gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.25);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.25);
+        } catch (e) {}
+      }
+      // 완료 축하 팡파레 (도-미-솔-도!)
+      playFanfare() {
+        if (!soundEnabled) return;
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const notes = [523.25, 659.25, 783.99, 1046.50];
+          notes.forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = "triangle";
+            const startTime = this.ctx.currentTime + idx * 0.1;
+            osc.frequency.setValueAtTime(freq, startTime);
+            gain.gain.setValueAtTime(0.15, startTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.35);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(startTime);
+            osc.stop(startTime + 0.35);
+          });
+        } catch (e) {}
+      }
+      // 일반 버튼 클릭 팝 사운드
+      playClick() {
+        if (!soundEnabled) return;
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+          gain.gain.setValueAtTime(0.06, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.08);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.08);
+        } catch (e) {}
+      }
+    }
+    const sound = new SoundEngine();
+
+    /* ==========================================================================
+       C. 한국어 조사 처리 헬퍼 함수 (받침 여부 판별)
+       ========================================================================== */
+    function hasBatchim(word) {
+      if (!word || typeof word !== "string") return false;
+      const lastChar = word.trim().slice(-1);
+      const code = lastChar.charCodeAt(0);
+      // 한글 유니코드 범위: 0xAC00 ~ 0xD7A3
+      if (code < 0xAC00 || code > 0xD7A3) return false;
+      return (code - 0xAC00) % 28 > 0;
+    }
+
+    function getJosa(word, josaType) {
+      const batchim = hasBatchim(word);
+      switch (josaType) {
+        case "이/가": return batchim ? "이" : "가";
+        case "을/를": return batchim ? "을" : "를";
+        case "은/는": return batchim ? "은" : "는";
+        case "과/와": return batchim ? "과" : "와";
+        case "으로/로": {
+          const code = word.trim().slice(-1).charCodeAt(0);
+          const jongseong = (code - 0xAC00) % 28;
+          // 종성이 없거나 ㄹ(종성 번호 8)인 경우 '로'
+          return (!batchim || jongseong === 8) ? "로" : "으로";
+        }
+        default: return "";
+      }
+    }
+
+    /* ==========================================================================
+       D. 꽃가루(Confetti) 폭죽 캔버스 엔진 (순수 JS)
+       ========================================================================== */
+    const confettiCanvas = document.getElementById("confetti-canvas");
+    const ctxConfetti = confettiCanvas.getContext("2d");
+    let confettiParticles = [];
+    let confettiAnimId = null;
+
+    function resizeConfetti() {
+      confettiCanvas.width = window.innerWidth;
+      confettiCanvas.height = window.innerHeight;
+    }
+    window.addEventListener("resize", resizeConfetti);
+    resizeConfetti();
+
+    function fireConfetti() {
+      resizeConfetti();
+      const colors = ["#FF595E", "#FFCA3A", "#8AC926", "#1982C4", "#6A4C93", "#FF924C", "#FF69B4"];
+      confettiParticles = [];
+      const count = 90;
+      for (let i = 0; i < count; i++) {
+        confettiParticles.push({
+          x: confettiCanvas.width / 2 + (Math.random() * 200 - 100),
+          y: confettiCanvas.height * 0.45,
+          w: Math.random() * 12 + 6,
+          h: Math.random() * 8 + 5,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          vx: (Math.random() - 0.5) * 18,
+          vy: (Math.random() - 0.7) * 18,
+          gravity: 0.35,
+          rotation: Math.random() * 360,
+          rotationSpeed: (Math.random() - 0.5) * 14,
+          opacity: 1,
+          decay: Math.random() * 0.012 + 0.008
+        });
+      }
+      if (confettiAnimId) cancelAnimationFrame(confettiAnimId);
+      renderConfetti();
+    }
+
+    function renderConfetti() {
+      ctxConfetti.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+      let aliveCount = 0;
+      for (let p of confettiParticles) {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += p.gravity;
+        p.rotation += p.rotationSpeed;
+        p.opacity -= p.decay;
+
+        if (p.opacity > 0 && p.y < confettiCanvas.height + 50) {
+          aliveCount++;
+          ctxConfetti.save();
+          ctxConfetti.translate(p.x, p.y);
+          ctxConfetti.rotate((p.rotation * Math.PI) / 180);
+          ctxConfetti.globalAlpha = Math.max(0, p.opacity);
+          ctxConfetti.fillStyle = p.color;
+          ctxConfetti.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+          ctxConfetti.restore();
+        }
+      }
+      if (aliveCount > 0) {
+        confettiAnimId = requestAnimationFrame(renderConfetti);
+      } else {
+        ctxConfetti.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+      }
+    }
+
+    /* ==========================================================================
+       E. 단어 데이터 초기화 및 로드/저장 로직
+       ========================================================================== */
+    function loadWords() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY_WORDS);
+        if (saved) {
+          currentWords = JSON.parse(saved);
+        } else {
+          currentWords = JSON.parse(JSON.stringify(DEFAULT_DATA));
+        }
+      } catch (e) {
+        currentWords = JSON.parse(JSON.stringify(DEFAULT_DATA));
+      }
+      // 안전 검증 (빈 배열 방지)
+      if (!currentWords.who || !currentWords.who.length) currentWords.who = [...DEFAULT_DATA.who];
+      if (!currentWords.where || !currentWords.where.length) currentWords.where = [...DEFAULT_DATA.where];
+      if (!currentWords.what || !currentWords.what.length) currentWords.what = [...DEFAULT_DATA.what];
+    }
+
+    function saveWordsToStorage() {
+      localStorage.setItem(STORAGE_KEY_WORDS, JSON.stringify(currentWords));
+    }
+
+    function getRandomWord(category) {
+      const list = currentWords[category];
+      if (!list || list.length === 0) return "비밀 단어";
+      const randomIndex = Math.floor(Math.random() * list.length);
+      return list[randomIndex];
+    }
+
+    /* ==========================================================================
+       F. 슬롯머신 롤링 및 애니메이션 인터랙션
+       ========================================================================== */
+    const slotTextWho = document.getElementById("slotTextWho");
+    const slotTextWhere = document.getElementById("slotTextWhere");
+    const slotTextWhat = document.getElementById("slotTextWhat");
+    const cardWho = document.getElementById("cardWho");
+    const cardWhere = document.getElementById("cardWhere");
+    const cardWhat = document.getElementById("cardWhat");
+    const btnSpinAll = document.getElementById("btnSpinAll");
+    const missionStoryText = document.getElementById("missionStoryText");
+
+    // 오늘 상상 이야기 질문 문장 업데이트
+    function updateMissionStorySentence() {
+      const who = selectedResults.who;
+      const where = selectedResults.where;
+      const what = selectedResults.what;
+
+      const josaWho = getJosa(who, "이/가");
+      // 장소 조사는 기본 '에서'
+      const josaWhere = "에서";
+
+      // 사건 문장 종결 어미 연결
+      let whatClean = what;
+      let missionSentence = "";
+
+      if (what.endsWith("다")) {
+        // "숙제를 먹어버렸다" -> "숙제를 먹어버렸다면"
+        whatClean = what.slice(0, -1);
+        missionSentence = `만약 <span class="highlight-who">${who}</span>${josaWho} <span class="highlight-where">${where}</span>${josaWhere} <span class="highlight-what">${whatClean}다면</span> 어떤 일이 벌어질까요?`;
+      } else {
+        missionSentence = `만약 <span class="highlight-who">${who}</span>${josaWho} <span class="highlight-where">${where}</span>${josaWhere} <span class="highlight-what">${what}</span> 일이 일어난다면 어떤 일이 벌어질까요?`;
+      }
+
+      missionStoryText.innerHTML = missionSentence;
+    }
+
+    // 전체 카드 슬롯머신 뽑기 실행
+    function spinAll() {
+      if (isRolling) return;
+      isRolling = true;
+      btnSpinAll.disabled = true;
+      sound.playClick();
+
+      // UI 롤링 클래스 부착
+      cardWho.classList.add("slot-rolling");
+      cardWhere.classList.add("slot-rolling");
+      cardWhat.classList.add("slot-rolling");
+      cardWho.classList.remove("card-landed");
+      cardWhere.classList.remove("card-landed");
+      cardWhat.classList.remove("card-landed");
+
+      // 틱 소리 및 랜덤 단어 플리커 인터벌
+      const tickInterval = setInterval(() => {
+        slotTextWho.textContent = getRandomWord("who");
+        slotTextWhere.textContent = getRandomWord("where");
+        slotTextWhat.textContent = getRandomWord("what");
+        sound.playTick();
+      }, 70);
+
+      // 단계별 멈춤 타이머 (리듬감 있는 3단계 슬롯머신 정지)
+      // 1) 주인공 정지 (800ms)
+      setTimeout(() => {
+        cardWho.classList.remove("slot-rolling");
+        selectedResults.who = getRandomWord("who");
+        slotTextWho.textContent = selectedResults.who;
+        cardWho.classList.add("card-landed");
+        sound.playStop(0);
+      }, 800);
+
+      // 2) 장소 정지 (1400ms)
+      setTimeout(() => {
+        cardWhere.classList.remove("slot-rolling");
+        selectedResults.where = getRandomWord("where");
+        slotTextWhere.textContent = selectedResults.where;
+        cardWhere.classList.add("card-landed");
+        sound.playStop(1);
+      }, 1400);
+
+      // 3) 사건 정지 및 최종 완성 (2000ms)
+      setTimeout(() => {
+        clearInterval(tickInterval);
+        cardWhat.classList.remove("slot-rolling");
+        selectedResults.what = getRandomWord("what");
+        slotTextWhat.textContent = selectedResults.what;
+        cardWhat.classList.add("card-landed");
+        sound.playStop(2);
+
+        // 최종 완성 발문 업데이트
+        updateMissionStorySentence();
+
+        // 축하 팡파레 및 꽃가루 연출
+        setTimeout(() => {
+          sound.playFanfare();
+          fireConfetti();
+          isRolling = false;
+          btnSpinAll.disabled = false;
+        }, 150);
+      }, 2000);
+    }
+
+    // 개별 카드만 다시 뽑기 (리롤)
+    function rerollSingle(category) {
+      if (isRolling) return;
+      sound.playClick();
+
+      let targetCard, targetText, stopIdx;
+      if (category === "who") { targetCard = cardWho; targetText = slotTextWho; stopIdx = 0; }
+      else if (category === "where") { targetCard = cardWhere; targetText = slotTextWhere; stopIdx = 1; }
+      else { targetCard = cardWhat; targetText = slotTextWhat; stopIdx = 2; }
+
+      targetCard.classList.add("slot-rolling");
+      targetCard.classList.remove("card-landed");
+
+      let count = 0;
+      const interval = setInterval(() => {
+        targetText.textContent = getRandomWord(category);
+        sound.playTick();
+        count++;
+        if (count >= 10) {
+          clearInterval(interval);
+          targetCard.classList.remove("slot-rolling");
+          const finalWord = getRandomWord(category);
+          selectedResults[category] = finalWord;
+          targetText.textContent = finalWord;
+          targetCard.classList.add("card-landed");
+          sound.playStop(stopIdx);
+          updateMissionStorySentence();
+        }
+      }, 60);
+    }
+
+    // 개별 리롤 버튼 이벤트 리스너 연결
+    document.querySelectorAll(".card-reroll-btn").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        const cat = e.currentTarget.getAttribute("data-category");
+        rerollSingle(cat);
+      });
+    });
+
+    btnSpinAll.addEventListener("click", spinAll);
+
+    /* ==========================================================================
+       G. 학습 활동 워크북 로직 (자동 저장, 글자 수 계산, 탭 전환)
+       ========================================================================== */
+    const modeTabs = document.querySelectorAll(".mode-tab");
+    const structureGrid = document.getElementById("structureGrid");
+    const freeformBox = document.getElementById("freeformBox");
+    const studentSchool = document.getElementById("studentSchool");
+    const studentName = document.getElementById("studentName");
+    const storyTitle = document.getElementById("storyTitle");
+    const textStart = document.getElementById("textStart");
+    const textMiddle = document.getElementById("textMiddle");
+    const textEnd = document.getElementById("textEnd");
+    const textFree = document.getElementById("textFree");
+    const totalCharCount = document.getElementById("totalCharCount");
+    const saveIndicator = document.getElementById("saveIndicator");
+
+    let currentMode = "structure"; // "structure" 또는 "free"
+
+    // 탭 전환
+    modeTabs.forEach(tab => {
+      tab.addEventListener("click", () => {
+        sound.playClick();
+        modeTabs.forEach(t => t.classList.remove("active"));
+        tab.classList.add("active");
+        currentMode = tab.getAttribute("data-mode");
+
+        if (currentMode === "structure") {
+          structureGrid.style.display = "grid";
+          freeformBox.classList.remove("active");
+        } else {
+          structureGrid.style.display = "none";
+          freeformBox.classList.add("active");
+        }
+        calculateCharCount();
+      });
+    });
+
+    // 글자 수 계산 및 자동 저장
+    function calculateCharCount() {
+      let count = 0;
+      if (currentMode === "structure") {
+        count = textStart.value.length + textMiddle.value.length + textEnd.value.length;
+      } else {
+        count = textFree.value.length;
+      }
+      totalCharCount.textContent = count.toLocaleString();
+      triggerAutoSave();
+    }
+
+    let saveTimeout = null;
+    function triggerAutoSave() {
+      saveIndicator.textContent = "저장 중...";
+      saveIndicator.style.color = "#F59E0B";
+
+      if (saveTimeout) clearTimeout(saveTimeout);
+      saveTimeout = setTimeout(() => {
+        const payload = {
+          school: studentSchool.value,
+          name: studentName.value,
+          title: storyTitle.value,
+          start: textStart.value,
+          middle: textMiddle.value,
+          end: textEnd.value,
+          free: textFree.value,
+          mode: currentMode,
+          savedAt: new Date().toISOString()
+        };
+        localStorage.setItem(STORAGE_KEY_WORKBOOK, JSON.stringify(payload));
+        saveIndicator.textContent = "자동 저장됨 ✓";
+        saveIndicator.style.color = "#10B981";
+      }, 500);
+    }
+
+    // 워크북 저장 복원
+    function loadSavedWorkbook() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY_WORKBOOK);
+        if (saved) {
+          const data = JSON.parse(saved);
+          if (data.school) studentSchool.value = data.school;
+          if (data.name) studentName.value = data.name;
+          if (data.title) storyTitle.value = data.title;
+          if (data.start) textStart.value = data.start;
+          if (data.middle) textMiddle.value = data.middle;
+          if (data.end) textEnd.value = data.end;
+          if (data.free) textFree.value = data.free;
+          if (data.mode && data.mode !== currentMode) {
+            const targetTab = document.querySelector(`.mode-tab[data-mode="${data.mode}"]`);
+            if (targetTab) targetTab.click();
+          }
+          calculateCharCount();
+        }
+      } catch (e) {}
+    }
+
+    [studentSchool, studentName, storyTitle, textStart, textMiddle, textEnd, textFree].forEach(el => {
+      el.addEventListener("input", calculateCharCount);
+    });
+
+    /* ==========================================================================
+       H. 내보내기 기능: 인쇄하기, 텍스트 저장, 클립보드 복사
+       ========================================================================== */
+    const btnPrint = document.getElementById("btnPrint");
+    const btnSaveTxt = document.getElementById("btnSaveTxt");
+    const btnCopyText = document.getElementById("btnCopyText");
+
+    // 1) 학습지 인쇄하기
+    btnPrint.addEventListener("click", () => {
+      sound.playClick();
+      window.print();
+    });
+
+    // 전체 글 취합 문자열 생성 함수
+    function buildExportContent() {
+      const title = storyTitle.value.trim() || "상상 글쓰기 이야기";
+      const author = `${studentSchool.value.trim() || "초등학교"} ${studentName.value.trim() || "학생"}`;
+      const who = selectedResults.who;
+      const where = selectedResults.where;
+      const what = selectedResults.what;
+
+      let content = `[상상 글쓰기 학습 활동지]\n`;
+      content += `==========================================\n`;
+      content += `■ 제목: ${title}\n`;
+      content += `■ 작성자: ${author}\n`;
+      content += `■ 뽑힌 주제:\n`;
+      content += `  - [주인공]: ${who}\n`;
+      content += `  - [장소]: ${where}\n`;
+      content += `  - [사건]: ${what}\n`;
+      content += `------------------------------------------\n`;
+      content += `■ 발문 미션:\n`;
+      content += `  ${missionStoryText.textContent.trim()}\n`;
+      content += `==========================================\n\n`;
+
+      if (currentMode === "structure") {
+        content += `[1. 처음 - 시작하기]\n${textStart.value.trim() || "(내용 없음)"}\n\n`;
+        content += `[2. 가운데 - 겪은 일]\n${textMiddle.value.trim() || "(내용 없음)"}\n\n`;
+        content += `[3. 끝 - 마무리]\n${textEnd.value.trim() || "(내용 없음)"}\n`;
+      } else {
+        content += `[자유 글쓰기]\n${textFree.value.trim() || "(내용 없음)"}\n`;
+      }
+      return content;
+    }
+
+    // 2) 텍스트 파일 (.txt) 저장
+    btnSaveTxt.addEventListener("click", () => {
+      sound.playClick();
+      const content = buildExportContent();
+      const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      const safeTitle = (storyTitle.value.trim() || "상상글쓰기").replace(/[/\\?%*:|"<>]/g, "");
+      a.href = url;
+      a.download = `${safeTitle}_${studentName.value.trim() || "이야기"}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast("💾 텍스트 파일이 다운로드되었습니다!");
+    });
+
+    // 3) 클립보드 복사
+    btnCopyText.addEventListener("click", () => {
+      sound.playClick();
+      const content = buildExportContent();
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(content).then(() => {
+          showToast("📋 글 내용이 클립보드에 복사되었습니다!");
+        }).catch(() => {
+          fallbackCopyText(content);
+        });
+      } else {
+        fallbackCopyText(content);
+      }
+    });
+
+    function fallbackCopyText(text) {
+      const dummy = document.createElement("textarea");
+      document.body.appendChild(dummy);
+      dummy.value = text;
+      dummy.select();
+      document.execCommand("copy");
+      document.body.removeChild(dummy);
+      showToast("📋 글 내용이 복사되었습니다!");
+    }
+
+    // 토스트 팝업 표시
+    const toastMsg = document.getElementById("toastMsg");
+    let toastTimer = null;
+    function showToast(msg) {
+      toastMsg.textContent = msg;
+      toastMsg.classList.add("show");
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toastMsg.classList.remove("show");
+      }, 2500);
+    }
+
+    /* ==========================================================================
+       I. 선생님 단어 편집 모달 (Modal / Settings) 로직
+       ========================================================================== */
+    const settingsModal = document.getElementById("settingsModal");
+    const btnOpenSettings = document.getElementById("btnOpenSettings");
+    const btnCloseModal = document.getElementById("btnCloseModal");
+    const btnSaveModal = document.getElementById("btnSaveModal");
+    const btnResetDefault = document.getElementById("btnResetDefault");
+    const editorTabs = document.querySelectorAll(".editor-tab");
+    const wordTagContainer = document.getElementById("wordTagContainer");
+    const newWordInput = document.getElementById("newWordInput");
+    const btnAddWord = document.getElementById("btnAddWord");
+    const countWho = document.getElementById("countWho");
+    const countWhere = document.getElementById("countWhere");
+    const countWhat = document.getElementById("countWhat");
+    const btnToggleBulk = document.getElementById("btnToggleBulk");
+    const bulkTextarea = document.getElementById("bulkTextarea");
+
+    function openSettingsModal() {
+      sound.playClick();
+      updateCategoryCounts();
+      renderEditorTags();
+      settingsModal.classList.add("open");
+    }
+
+    function closeSettingsModal() {
+      sound.playClick();
+      settingsModal.classList.remove("open");
+    }
+
+    btnOpenSettings.addEventListener("click", openSettingsModal);
+    btnCloseModal.addEventListener("click", closeSettingsModal);
+    btnSaveModal.addEventListener("click", () => {
+      saveWordsToStorage();
+      closeSettingsModal();
+      showToast("✅ 단어 목록이 저장되었습니다!");
+    });
+
+    // 배경 클릭 시 닫기
+    settingsModal.addEventListener("click", (e) => {
+      if (e.target === settingsModal) closeSettingsModal();
+    });
+
+    // 탭 전환
+    editorTabs.forEach(tab => {
+      tab.addEventListener("click", () => {
+        sound.playClick();
+        activeEditorCat = tab.getAttribute("data-cat");
+        editorTabs.forEach(t => {
+          t.className = "editor-tab";
+        });
+        tab.classList.add(`active-${activeEditorCat}`);
+        renderEditorTags();
+      });
+    });
+
+    function updateCategoryCounts() {
+      countWho.textContent = currentWords.who.length;
+      countWhere.textContent = currentWords.where.length;
+      countWhat.textContent = currentWords.what.length;
+    }
+
+    function renderEditorTags() {
+      wordTagContainer.innerHTML = "";
+      const list = currentWords[activeEditorCat] || [];
+      updateCategoryCounts();
+
+      list.forEach((word, idx) => {
+        const chip = document.createElement("div");
+        chip.className = "word-chip";
+        chip.innerHTML = `
+          <span>${word}</span>
+          <button type="button" class="word-chip-del" data-index="${idx}" title="삭제">✕</button>
+        `;
+        wordTagContainer.appendChild(chip);
+      });
+
+      // 삭제 버튼 이벤트
+      wordTagContainer.querySelectorAll(".word-chip-del").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          const idx = parseInt(e.currentTarget.getAttribute("data-index"), 10);
+          currentWords[activeEditorCat].splice(idx, 1);
+          renderEditorTags();
+          saveWordsToStorage();
+        });
+      });
+
+      // 대량 텍스트 영역 동기화
+      bulkTextarea.value = list.join("\n");
+    }
+
+    // 단어 추가
+    function addNewWord() {
+      const val = newWordInput.value.trim();
+      if (!val) return;
+      if (!currentWords[activeEditorCat]) currentWords[activeEditorCat] = [];
+      if (currentWords[activeEditorCat].includes(val)) {
+        showToast("⚠️ 이미 등록되어 있는 단어입니다.");
+        return;
+      }
+      currentWords[activeEditorCat].unshift(val);
+      newWordInput.value = "";
+      renderEditorTags();
+      saveWordsToStorage();
+      sound.playClick();
+      showToast(`'${val}' 단어가 추가되었습니다!`);
+    }
+
+    btnAddWord.addEventListener("click", addNewWord);
+    newWordInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        addNewWord();
+      }
+    });
+
+    // 대량 편집기 토글 & 적용
+    btnToggleBulk.addEventListener("click", () => {
+      bulkTextarea.classList.toggle("active");
+      if (bulkTextarea.classList.contains("active")) {
+        btnToggleBulk.textContent = "▲ 대량 편집기 접기";
+        bulkTextarea.value = (currentWords[activeEditorCat] || []).join("\n");
+      } else {
+        btnToggleBulk.textContent = "📝 줄바꿈으로 한꺼번에 대량 편집하기";
+      }
+    });
+
+    bulkTextarea.addEventListener("change", () => {
+      const lines = bulkTextarea.value.split("\n")
+        .map(l => l.trim())
+        .filter(l => l.length > 0);
+      if (lines.length > 0) {
+        currentWords[activeEditorCat] = [...new Set(lines)];
+        renderEditorTags();
+        saveWordsToStorage();
+        showToast("대량 단어 목록이 적용되었습니다!");
+      }
+    });
+
+    // 기본 추천 단어로 초기화
+    btnResetDefault.addEventListener("click", () => {
+      if (confirm("정말 기본 추천 단어 목록으로 초기화할까요? 추가했던 단어는 사라집니다.")) {
+        currentWords = JSON.parse(JSON.stringify(DEFAULT_DATA));
+        saveWordsToStorage();
+        renderEditorTags();
+        showToast("🔄 기본 단어 목록으로 복원되었습니다.");
+      }
+    });
+
+    /* ==========================================================================
+       J. 기타 편의 기능 (효과음 토글, 전체화면 토글, 집중 타이머)
+       ========================================================================== */
+    // 1) 효과음 토글
+    const btnSoundToggle = document.getElementById("btnSoundToggle");
+    const soundIcon = document.getElementById("soundIcon");
+    const soundText = document.getElementById("soundText");
+
+    // 저장된 사운드 설정 불러오기
+    const savedSound = localStorage.getItem(STORAGE_KEY_SOUND);
+    if (savedSound !== null) {
+      soundEnabled = savedSound === "true";
+      applySoundUI();
+    }
+
+    function applySoundUI() {
+      if (soundEnabled) {
+        soundIcon.textContent = "🔊";
+        soundText.textContent = "소리 켬";
+        btnSoundToggle.classList.remove("active");
+      } else {
+        soundIcon.textContent = "🔇";
+        soundText.textContent = "음소거";
+        btnSoundToggle.classList.add("active");
+      }
+    }
+
+    btnSoundToggle.addEventListener("click", () => {
+      soundEnabled = !soundEnabled;
+      localStorage.setItem(STORAGE_KEY_SOUND, soundEnabled);
+      applySoundUI();
+      if (soundEnabled) sound.playClick();
+    });
+
+    // 2) 전체화면 토글
+    const btnFullscreen = document.getElementById("btnFullscreen");
+    btnFullscreen.addEventListener("click", () => {
+      sound.playClick();
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+        btnFullscreen.innerHTML = "<span>⤓</span> 창모드";
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+        btnFullscreen.innerHTML = "<span>⛶</span> 전체화면";
+      }
+    });
+
+    // 3) 교실 집중 글쓰기 타이머 (기본 10분)
+    let timerDuration = 10 * 60; // 초 단위
+    let timerRemaining = timerDuration;
+    let timerInterval = null;
+    let timerRunning = false;
+    const timerDisplay = document.getElementById("timerDisplay");
+    const btnTimerToggle = document.getElementById("btnTimerToggle");
+    const btnTimerReset = document.getElementById("btnTimerReset");
+
+    function formatTime(seconds) {
+      const m = Math.floor(seconds / 60);
+      const s = seconds % 60;
+      return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+    }
+
+    function updateTimerDisplay() {
+      timerDisplay.textContent = formatTime(timerRemaining);
+    }
+
+    btnTimerToggle.addEventListener("click", () => {
+      sound.playClick();
+      if (timerRunning) {
+        // 일시정지
+        clearInterval(timerInterval);
+        timerRunning = false;
+        btnTimerToggle.textContent = "계속";
+      } else {
+        // 시작
+        timerRunning = true;
+        btnTimerToggle.textContent = "일시정지";
+        timerInterval = setInterval(() => {
+          if (timerRemaining > 0) {
+            timerRemaining--;
+            updateTimerDisplay();
+          } else {
+            clearInterval(timerInterval);
+            timerRunning = false;
+            btnTimerToggle.textContent = "시작";
+            sound.playFanfare();
+            showToast("⏰ 글쓰기 시간이 완료되었습니다! 수고했어요!");
+          }
+        }, 1000);
+      }
+    });
+
+    btnTimerReset.addEventListener("click", () => {
+      sound.playClick();
+      clearInterval(timerInterval);
+      timerRunning = false;
+      timerRemaining = timerDuration;
+      updateTimerDisplay();
+      btnTimerToggle.textContent = "시작";
+    });
+
+    /* ==========================================================================
+       K. 페이지 최초 로드 시 초기화 실행
+       ========================================================================== */
+    window.addEventListener("DOMContentLoaded", () => {
+      loadWords();
+      loadSavedWorkbook();
+
+      // 첫 로딩 시 화면에 기본 단어 세팅
+      selectedResults.who = slotTextWho.textContent.trim() || getRandomWord("who");
+      selectedResults.where = slotTextWhere.textContent.trim() || getRandomWord("where");
+      selectedResults.what = slotTextWhat.textContent.trim() || getRandomWord("what");
+      
+      slotTextWho.textContent = selectedResults.who;
+      slotTextWhere.textContent = selectedResults.where;
+      slotTextWhat.textContent = selectedResults.what;
+
+      updateMissionStorySentence();
+      updateCategoryCounts();
+    });
+  </script>
+</body>
+</html>
